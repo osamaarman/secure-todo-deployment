@@ -75,3 +75,46 @@ jobs:
         with:
           name: hadolint-reports
           path: hadolint-*-report.txt
+
+  trivy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t todo-backend:scan ./backend
+
+      - name: Build frontend image
+        run: docker build -t todo-frontend:scan ./frontend
+
+      - name: Run Trivy on backend image
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: todo-backend:scan
+          format: table
+          output: trivy-backend-report.txt
+          exit-code: 0
+          severity: CRITICAL,HIGH
+
+      - name: Run Trivy on frontend image
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: todo-frontend:scan
+          format: table
+          output: trivy-frontend-report.txt
+          exit-code: 0
+          severity: CRITICAL,HIGH
+
+      - name: Show Trivy reports
+        run: |
+          echo "=== Backend Image ==="
+          cat trivy-backend-report.txt
+          echo "=== Frontend Image ==="
+          cat trivy-frontend-report.txt
+
+      - name: Upload Trivy reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports
+          path: trivy-*-report.txt
