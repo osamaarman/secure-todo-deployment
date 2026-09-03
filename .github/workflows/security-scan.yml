@@ -89,7 +89,7 @@ jobs:
         run: docker build -t todo-frontend:scan ./frontend
 
       - name: Run Trivy on backend image
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: todo-backend:scan
           format: table
@@ -98,7 +98,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Run Trivy on frontend image
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: todo-frontend:scan
           format: table
