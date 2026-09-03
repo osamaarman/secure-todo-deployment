@@ -40,3 +40,38 @@ jobs:
         with:
           name: bandit-report
           path: bandit-report.txt
+
+  hadolint:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint backend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          failure-threshold: error
+          output-file: hadolint-backend-report.txt
+          no-fail: true
+
+      - name: Lint frontend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: frontend/Dockerfile
+          failure-threshold: error
+          output-file: hadolint-frontend-report.txt
+          no-fail: true
+
+      - name: Show Hadolint reports
+        run: |
+          echo "=== Backend Dockerfile ==="
+          cat hadolint-backend-report.txt || echo "no issues"
+          echo "=== Frontend Dockerfile ==="
+          cat hadolint-frontend-report.txt || echo "no issues"
+
+      - name: Upload Hadolint reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: hadolint-reports
+          path: hadolint-*-report.txt
