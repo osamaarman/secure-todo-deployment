@@ -25,8 +25,8 @@ services:
     environment:
       - VAULT_ADDR=http://vault:8200
     volumes:
-      - ../vault/role_id.txt:/vault-secrets/role_id:ro
-      - ../vault/secret_id.txt:/vault-secrets/secret_id:ro
+      - /home/kali/secure-deploy-project/vault/role_id.txt:/vault-secrets/role_id:ro
+      - /home/kali/secure-deploy-project/vault/secret_id.txt:/vault-secrets/secret_id:ro
     depends_on:
       db:
         condition: service_healthy
