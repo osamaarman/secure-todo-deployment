@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:17
+    container_name: postgres-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret_pass
+      - POSTGRES_DB=tododb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_net
+
+  backend:
+    build: ./backend
+    container_name: flask-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - VAULT_ADDR=http://vault:8200
+    volumes:
+      - ../vault/role_id.txt:/vault-secrets/role_id:ro
+      - ../vault/secret_id.txt:/vault-secrets/secret_id:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_net
+      - vault_default
+
+  frontend:
+    build: ./frontend
+    container_name: react-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app_net
+
+volumes:
+  postgres_data:
+
+networks:
+  app_net:
+  vault_default:
+    external: true
