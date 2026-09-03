@@ -19,3 +19,24 @@ jobs:
         with:
           path: ./
           extra_args: --only-verified
+
+  bandit:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Bandit
+        run: pip install --break-system-packages bandit
+
+      - name: Run Bandit on backend
+        run: bandit -r backend/ -f txt -o bandit-report.txt --exit-zero
+
+      - name: Show Bandit report
+        run: cat bandit-report.txt
+
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.txt
